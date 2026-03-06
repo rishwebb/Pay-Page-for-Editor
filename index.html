@@ -1,0 +1,598 @@
+<!doctype html>
+<html lang="en" class="h-full">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pricing Calculator</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js"></script>
+  <script src="/_sdk/element_sdk.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&amp;family=Space+Mono:wght@400;700&amp;display=swap" rel="stylesheet">
+  <style>
+    * { font-family: 'Syne', sans-serif; }
+    .mono { font-family: 'Space Mono', monospace; }
+    
+    @keyframes float {
+      0%, 100% { transform: translateY(0px) rotate(0deg); }
+      50% { transform: translateY(-20px) rotate(5deg); }
+    }
+    
+    @keyframes pulse-glow {
+      0%, 100% { box-shadow: 0 0 20px rgba(255, 107, 53, 0.3); }
+      50% { box-shadow: 0 0 40px rgba(255, 107, 53, 0.6); }
+    }
+    
+    @keyframes slide-up {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    @keyframes gradient-shift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    
+    .float-1 { animation: float 6s ease-in-out infinite; }
+    .float-2 { animation: float 8s ease-in-out infinite 1s; }
+    .float-3 { animation: float 7s ease-in-out infinite 2s; }
+    
+    .pulse-glow { animation: pulse-glow 2s ease-in-out infinite; }
+    
+    .slide-up { animation: slide-up 0.6s ease-out forwards; }
+    .slide-up-1 { animation-delay: 0.1s; opacity: 0; }
+    .slide-up-2 { animation-delay: 0.2s; opacity: 0; }
+    .slide-up-3 { animation-delay: 0.3s; opacity: 0; }
+    .slide-up-4 { animation-delay: 0.4s; opacity: 0; }
+    
+    .gradient-text {
+      background: linear-gradient(135deg, #FF6B35, #F7C59F, #FF6B35);
+      background-size: 200% 200%;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: gradient-shift 4s ease infinite;
+    }
+    
+    .glass {
+      background: rgba(26, 26, 36, 0.7);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 107, 53, 0.1);
+    }
+    
+    .range-slider {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%;
+      height: 8px;
+      border-radius: 4px;
+      outline: none;
+      transition: all 0.3s;
+    }
+    
+    .range-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      cursor: grab;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      background: linear-gradient(135deg, #FF6B35 0%, #F7C59F 100%);
+      box-shadow: 0 0 0 6px rgba(255, 107, 53, 0.15), 0 8px 24px rgba(255, 107, 53, 0.5), inset 0 -2px 8px rgba(0, 0, 0, 0.3), inset 0 2px 8px rgba(255, 255, 255, 0.2);
+      border: 2px solid rgba(255, 255, 255, 0.3);
+    }
+    
+    .range-slider::-webkit-slider-thumb:hover {
+      transform: scale(1.2);
+      box-shadow: 0 0 0 9px rgba(255, 107, 53, 0.25), 0 12px 32px rgba(255, 107, 53, 0.6), inset 0 -2px 8px rgba(0, 0, 0, 0.3), inset 0 2px 8px rgba(255, 255, 255, 0.2);
+      cursor: grabbing;
+    }
+    
+    .range-slider::-webkit-slider-thumb:active {
+      transform: scale(1.08);
+      box-shadow: 0 0 0 6px rgba(255, 107, 53, 0.2), 0 4px 12px rgba(255, 107, 53, 0.4), inset 0 -2px 8px rgba(0, 0, 0, 0.3), inset 0 2px 8px rgba(255, 255, 255, 0.2);
+    }
+    
+    .range-slider::-moz-range-thumb {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      cursor: grab;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      background: linear-gradient(135deg, #FF6B35 0%, #F7C59F 100%);
+      box-shadow: 0 0 0 6px rgba(255, 107, 53, 0.15), 0 8px 24px rgba(255, 107, 53, 0.5), inset 0 -2px 8px rgba(0, 0, 0, 0.3), inset 0 2px 8px rgba(255, 255, 255, 0.2);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    .range-slider::-moz-range-thumb:hover {
+      transform: scale(1.2);
+      box-shadow: 0 0 0 9px rgba(255, 107, 53, 0.25), 0 12px 32px rgba(255, 107, 53, 0.6), inset 0 -2px 8px rgba(0, 0, 0, 0.3), inset 0 2px 8px rgba(255, 255, 255, 0.2);
+      cursor: grabbing;
+    }
+    
+    .range-slider::-moz-range-thumb:active {
+      transform: scale(1.08);
+      box-shadow: 0 0 0 6px rgba(255, 107, 53, 0.2), 0 4px 12px rgba(255, 107, 53, 0.4), inset 0 -2px 8px rgba(0, 0, 0, 0.3), inset 0 2px 8px rgba(255, 255, 255, 0.2);
+    }
+    
+    .counter-btn {
+      transition: all 0.2s;
+    }
+    
+    .counter-btn:hover {
+      transform: scale(1.1);
+    }
+    
+    .counter-btn:active {
+      transform: scale(0.95);
+    }
+    
+    .checkbox-custom {
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    .checkbox-custom.checked {
+      transform: scale(1.05);
+    }
+    
+    .total-display {
+      background: linear-gradient(135deg, rgba(255, 107, 53, 0.1), rgba(247, 197, 159, 0.1));
+      border: 2px solid rgba(255, 107, 53, 0.3);
+    }
+    
+    .noise {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      opacity: 0.03;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+    }
+  </style>
+  <style>body { box-sizing: border-box; }</style>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+ </head>
+ <body class="h-full bg-[#0D0D12] text-white overflow-auto">
+  <div class="noise"></div><!-- Floating decorative elements -->
+  <div class="fixed top-20 left-10 w-32 h-32 rounded-full bg-gradient-to-br from-[#FF6B35]/20 to-transparent blur-2xl float-1 pointer-events-none"></div>
+  <div class="fixed top-40 right-20 w-48 h-48 rounded-full bg-gradient-to-br from-[#F7C59F]/10 to-transparent blur-3xl float-2 pointer-events-none"></div>
+  <div class="fixed bottom-40 left-1/4 w-40 h-40 rounded-full bg-gradient-to-br from-[#FF6B35]/15 to-transparent blur-2xl float-3 pointer-events-none"></div>
+  <div class="relative min-h-full w-full" id="main-app"><!-- Calculator View -->
+   <div id="calculator-view" class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+    <!-- Header -->
+    <header class="text-center mb-10 sm:mb-16 slide-up slide-up-1">
+     <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full glass mb-6">
+      <div class="w-2 h-2 rounded-full bg-[#FF6B35] animate-pulse"></div><span class="text-xs mono tracking-wider text-[#F7C59F]/80">INSTANT QUOTE</span>
+     </div>
+     <h1 id="business-name" class="text-4xl sm:text-5xl lg:text-6xl font-extrabold gradient-text mb-3">Clarity Studio</h1>
+     <p id="tagline" class="text-lg sm:text-xl text-[#F7C59F]/60 font-medium">Photography Pricing Calculator</p>
+    </header><!-- Calculator Card -->
+    <div class="glass rounded-3xl p-6 sm:p-8 lg:p-10 slide-up slide-up-2">
+     <!-- Session Duration -->
+     <div class="mb-8 sm:mb-10">
+      <div class="flex items-center justify-between mb-4">
+       <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-[#FF6B35]/20 flex items-center justify-center">
+         <i data-lucide="clock" class="w-5 h-5 text-[#FF6B35]"></i>
+        </div>
+        <div>
+         <h3 class="font-semibold text-white">Session Duration</h3>
+         <p class="text-sm text-[#F7C59F]/50">$150 - $250 per hour</p>
+        </div>
+       </div>
+       <div class="text-right">
+        <span id="hours-display" class="text-2xl sm:text-3xl font-bold text-[#FF6B35] mono">2</span> <span class="text-[#F7C59F]/60 ml-1">hrs</span>
+       </div>
+      </div><input type="range" id="hours-slider" min="1" max="8" value="2" class="range-slider bg-[#1A1A24]" style="background: linear-gradient(to right, #FF6B35 0%, #FF6B35 14.3%, #2A2A36 14.3%, #2A2A36 100%);" oninput="updateCalculator()">
+      <div class="flex justify-between mt-2 text-xs mono text-[#F7C59F]/40">
+       <span>1 hr</span> <span>8 hrs</span>
+      </div>
+     </div><!-- Hourly Rate -->
+     <div class="mb-8 sm:mb-10">
+      <div class="flex items-center justify-between mb-4">
+       <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-[#F7C59F]/20 flex items-center justify-center">
+         <i data-lucide="dollar-sign" class="w-5 h-5 text-[#F7C59F]"></i>
+        </div>
+        <div>
+         <h3 class="font-semibold text-white">Session Type</h3>
+         <p class="text-sm text-[#F7C59F]/50">Basic to Premium</p>
+        </div>
+       </div>
+       <div class="text-right">
+        <span class="text-[#F7C59F]/60">$</span> <span id="rate-display" class="text-2xl sm:text-3xl font-bold text-[#F7C59F] mono">150</span> <span class="text-[#F7C59F]/60">/hr</span>
+       </div>
+      </div><input type="range" id="rate-slider" min="150" max="250" step="25" value="150" class="range-slider bg-[#1A1A24]" style="background: linear-gradient(to right, #F7C59F 0%, #F7C59F 0%, #2A2A36 0%, #2A2A36 100%);" oninput="updateCalculator()">
+      <div class="flex justify-between mt-2 text-xs mono text-[#F7C59F]/40">
+       <span>Basic $150</span> <span>Premium $250</span>
+      </div>
+     </div><!-- Divider -->
+     <div class="h-px bg-gradient-to-r from-transparent via-[#FF6B35]/30 to-transparent my-8"></div><!-- Edited Images -->
+     <div class="mb-8 sm:mb-10">
+      <div class="flex items-center justify-between">
+       <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-[#FF6B35]/20 flex items-center justify-center">
+         <i data-lucide="image" class="w-5 h-5 text-[#FF6B35]"></i>
+        </div>
+        <div>
+         <h3 class="font-semibold text-white">Edited Images</h3>
+         <p class="text-sm text-[#F7C59F]/50">$50 per image</p>
+        </div>
+       </div>
+       <div class="flex items-center gap-3">
+        <button onclick="adjustImages(-1)" class="counter-btn w-10 h-10 rounded-xl bg-[#1A1A24] border border-[#FF6B35]/30 flex items-center justify-center hover:bg-[#FF6B35]/20 hover:border-[#FF6B35]"> <i data-lucide="minus" class="w-4 h-4 text-[#FF6B35]"></i> </button> <span id="images-display" class="text-2xl sm:text-3xl font-bold text-[#FF6B35] mono w-12 text-center">10</span> <button onclick="adjustImages(1)" class="counter-btn w-10 h-10 rounded-xl bg-[#1A1A24] border border-[#FF6B35]/30 flex items-center justify-center hover:bg-[#FF6B35]/20 hover:border-[#FF6B35]"> <i data-lucide="plus" class="w-4 h-4 text-[#FF6B35]"></i> </button>
+       </div>
+      </div>
+     </div><!-- Divider -->
+     <div class="h-px bg-gradient-to-r from-transparent via-[#FF6B35]/30 to-transparent my-8"></div><!-- Album Options -->
+     <div class="mb-8 sm:mb-10">
+      <div class="flex items-center gap-3 mb-5">
+       <div class="w-10 h-10 rounded-xl bg-[#F7C59F]/20 flex items-center justify-center">
+        <i data-lucide="book-open" class="w-5 h-5 text-[#F7C59F]"></i>
+       </div>
+       <div>
+        <h3 class="font-semibold text-white">Photo Album</h3>
+        <p class="text-sm text-[#F7C59F]/50">Premium keepsake options</p>
+       </div>
+      </div>
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+       <button onclick="selectAlbum('none', 0)" id="album-none" class="checkbox-custom p-4 rounded-2xl bg-[#1A1A24] border-2 border-[#FF6B35] text-left transition-all">
+        <div class="flex items-center justify-between mb-2">
+         <span class="text-sm font-medium text-white">No Album</span>
+         <div class="w-5 h-5 rounded-full border-2 border-[#FF6B35] flex items-center justify-center">
+          <div id="check-none" class="w-2.5 h-2.5 rounded-full bg-[#FF6B35]"></div>
+         </div>
+        </div><span class="mono text-lg font-bold text-[#FF6B35]">$0</span> </button> <button onclick="selectAlbum('standard', 100)" id="album-standard" class="checkbox-custom p-4 rounded-2xl bg-[#1A1A24] border-2 border-[#2A2A36] text-left transition-all hover:border-[#FF6B35]/50">
+        <div class="flex items-center justify-between mb-2">
+         <span class="text-sm font-medium text-white">Standard</span>
+         <div class="w-5 h-5 rounded-full border-2 border-[#F7C59F]/30 flex items-center justify-center">
+          <div id="check-standard" class="w-2.5 h-2.5 rounded-full bg-transparent"></div>
+         </div>
+        </div><span class="mono text-lg font-bold text-[#F7C59F]">$100</span> <p class="text-xs text-[#F7C59F]/40 mt-1">20 pages, matte finish</p></button> <button onclick="selectAlbum('premium', 300)" id="album-premium" class="checkbox-custom p-4 rounded-2xl bg-[#1A1A24] border-2 border-[#2A2A36] text-left transition-all hover:border-[#FF6B35]/50">
+        <div class="flex items-center justify-between mb-2">
+         <span class="text-sm font-medium text-white">Premium</span>
+         <div class="w-5 h-5 rounded-full border-2 border-[#F7C59F]/30 flex items-center justify-center">
+          <div id="check-premium" class="w-2.5 h-2.5 rounded-full bg-transparent"></div>
+         </div>
+        </div><span class="mono text-lg font-bold text-[#F7C59F]">$300</span> <p class="text-xs text-[#F7C59F]/40 mt-1">40 pages, leather bound</p></button>
+      </div>
+     </div><!-- Total -->
+     <div class="total-display rounded-2xl p-6 sm:p-8 slide-up slide-up-3">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+       <div>
+        <p class="text-sm text-[#F7C59F]/60 mb-1">Estimated Total</p>
+        <div class="flex items-baseline gap-2">
+         <span class="text-4xl sm:text-5xl font-extrabold gradient-text mono" id="total-display">$800</span>
+        </div>
+       </div><button id="cta-button" onclick="goToCheckout()" class="pulse-glow px-8 py-4 rounded-2xl bg-gradient-to-r from-[#FF6B35] to-[#F7C59F] text-[#0D0D12] font-bold text-lg hover:opacity-90 transition-opacity flex items-center justify-center gap-2"> <span>Book Now</span> <i data-lucide="arrow-right" class="w-5 h-5"></i> </button>
+      </div><!-- Breakdown -->
+      <div class="mt-6 pt-6 border-t border-[#FF6B35]/20">
+       <p class="text-xs text-[#F7C59F]/40 mb-3 font-medium">BREAKDOWN</p>
+       <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-sm">
+        <div class="flex justify-between sm:flex-col sm:gap-1">
+         <span class="text-[#F7C59F]/60">Session</span> <span class="mono text-white" id="breakdown-session">$300</span>
+        </div>
+        <div class="flex justify-between sm:flex-col sm:gap-1">
+         <span class="text-[#F7C59F]/60">Editing</span> <span class="mono text-white" id="breakdown-editing">$500</span>
+        </div>
+        <div class="flex justify-between sm:flex-col sm:gap-1">
+         <span class="text-[#F7C59F]/60">Album</span> <span class="mono text-white" id="breakdown-album">$0</span>
+        </div>
+       </div>
+      </div>
+     </div>
+    </div><!-- Footer -->
+    <footer class="text-center mt-8 text-sm text-[#F7C59F]/40 slide-up slide-up-4">
+     <p>Prices are estimates. Final quote may vary based on specific requirements.</p>
+    </footer>
+   </div><!-- Checkout View -->
+   <div id="checkout-view" class="hidden max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12"><!-- Back Button --> <button onclick="goBackToCalculator()" class="flex items-center gap-2 text-[#F7C59F] hover:text-[#FF6B35] transition-colors mb-8 slide-up slide-up-1"> <i data-lucide="arrow-left" class="w-5 h-5"></i> <span class="text-sm font-medium">Back to Calculator</span> </button> <!-- Checkout Header -->
+    <header class="text-center mb-10 slide-up slide-up-1">
+     <h1 class="text-4xl sm:text-5xl font-extrabold gradient-text mb-3">Complete Your Booking</h1>
+     <p class="text-lg text-[#F7C59F]/60">Enter your details to finalize your session</p>
+    </header><!-- Checkout Card -->
+    <div class="glass rounded-3xl p-6 sm:p-8 lg:p-10 slide-up slide-up-2"><!-- Order Summary -->
+     <div class="bg-[#1A1A24]/50 rounded-2xl p-6 mb-8 border border-[#FF6B35]/20">
+      <h3 class="text-white font-semibold mb-4">Order Summary</h3>
+      <div class="space-y-3 mb-4">
+       <div class="flex justify-between text-sm"><span class="text-[#F7C59F]/60">Session (<span id="summary-hours">2</span>hrs @ $<span id="summary-rate">150</span>/hr)</span> <span class="mono text-white" id="summary-session">$300</span>
+       </div>
+       <div class="flex justify-between text-sm"><span class="text-[#F7C59F]/60">Edited Images (<span id="summary-images">10</span> @ $50 each)</span> <span class="mono text-white" id="summary-editing">$500</span>
+       </div>
+       <div class="flex justify-between text-sm"><span class="text-[#F7C59F]/60">Photo Album</span> <span class="mono text-white" id="summary-album">$0</span>
+       </div>
+      </div>
+      <div class="h-px bg-[#FF6B35]/20 mb-4"></div>
+      <div class="flex justify-between"><span class="font-semibold text-white">Total</span> <span class="text-2xl mono font-bold text-[#FF6B35]" id="summary-total">$800</span>
+      </div>
+     </div><!-- Contact Form -->
+     <form id="checkout-form" onsubmit="submitBooking(event)">
+      <div class="space-y-6"><!-- Name -->
+       <div><label for="customer-name" class="block text-sm font-medium text-white mb-2">Full Name</label> <input type="text" id="customer-name" name="name" required placeholder="John Doe" class="w-full px-4 py-3 rounded-xl bg-[#1A1A24] border border-[#FF6B35]/30 text-white placeholder-[#F7C59F]/30 focus:outline-none focus:border-[#FF6B35] focus:ring-2 focus:ring-[#FF6B35]/20 transition-all">
+       </div><!-- Email -->
+       <div><label for="customer-email" class="block text-sm font-medium text-white mb-2">Email Address</label> <input type="email" id="customer-email" name="email" required placeholder="john@example.com" class="w-full px-4 py-3 rounded-xl bg-[#1A1A24] border border-[#FF6B35]/30 text-white placeholder-[#F7C59F]/30 focus:outline-none focus:border-[#FF6B35] focus:ring-2 focus:ring-[#FF6B35]/20 transition-all">
+       </div><!-- Phone -->
+       <div><label for="customer-phone" class="block text-sm font-medium text-white mb-2">Phone Number</label> <input type="tel" id="customer-phone" name="phone" required placeholder="(555) 123-4567" class="w-full px-4 py-3 rounded-xl bg-[#1A1A24] border border-[#FF6B35]/30 text-white placeholder-[#F7C59F]/30 focus:outline-none focus:border-[#FF6B35] focus:ring-2 focus:ring-[#FF6B35]/20 transition-all">
+       </div><!-- Event Date -->
+       <div><label for="event-date" class="block text-sm font-medium text-white mb-2">Preferred Session Date</label> <input type="date" id="event-date" name="date" required class="w-full px-4 py-3 rounded-xl bg-[#1A1A24] border border-[#FF6B35]/30 text-white focus:outline-none focus:border-[#FF6B35] focus:ring-2 focus:ring-[#FF6B35]/20 transition-all">
+       </div><!-- Special Notes -->
+       <div><label for="special-notes" class="block text-sm font-medium text-white mb-2">Special Requests (Optional)</label> <textarea id="special-notes" name="notes" placeholder="Tell us about your vision for this session..." rows="4" class="w-full px-4 py-3 rounded-xl bg-[#1A1A24] border border-[#FF6B35]/30 text-white placeholder-[#F7C59F]/30 focus:outline-none focus:border-[#FF6B35] focus:ring-2 focus:ring-[#FF6B35]/20 transition-all resize-none"></textarea>
+       </div>
+      </div><!-- Terms -->
+      <div class="flex items-start gap-3 my-6 p-4 rounded-xl bg-[#1A1A24]/50 border border-[#FF6B35]/10"><input type="checkbox" id="terms" name="terms" required class="w-5 h-5 mt-0.5 accent-[#FF6B35] cursor-pointer"> <label for="terms" class="text-sm text-[#F7C59F]/70 cursor-pointer">I agree to the booking terms and cancellation policy</label>
+      </div><!-- Submit Button --> <button type="submit" class="pulse-glow w-full py-4 rounded-2xl bg-gradient-to-r from-[#FF6B35] to-[#F7C59F] text-[#0D0D12] font-bold text-lg hover:opacity-90 transition-opacity flex items-center justify-center gap-2"> <span>Complete Booking</span> <i data-lucide="check-circle" class="w-5 h-5"></i> </button>
+     </form>
+    </div><!-- Success Message (hidden) -->
+    <div id="success-message" class="hidden max-w-2xl mx-auto text-center mt-12 slide-up">
+     <div class="glass rounded-3xl p-8 sm:p-12">
+      <div class="w-16 h-16 mx-auto mb-6 rounded-full bg-[#FF6B35]/20 flex items-center justify-center"><i data-lucide="check" class="w-8 h-8 text-[#FF6B35]"></i>
+      </div>
+      <h2 class="text-3xl sm:text-4xl font-extrabold gradient-text mb-3">Booking Confirmed!</h2>
+      <p class="text-lg text-[#F7C59F]/60 mb-8">Thank you for choosing Clarity Studio. We'll send a confirmation email shortly with all the details.</p><button onclick="goBackToCalculator()" class="px-8 py-4 rounded-2xl bg-gradient-to-r from-[#FF6B35] to-[#F7C59F] text-[#0D0D12] font-bold text-lg hover:opacity-90 transition-opacity"> Start New Booking </button>
+     </div>
+    </div>
+   </div>
+  </div>
+  <script>
+    // State
+    let hours = 2;
+    let rate = 150;
+    let images = 10;
+    let albumPrice = 0;
+    let selectedAlbum = 'none';
+    
+    // Default config
+    const defaultConfig = {
+      business_name: 'Clarity Studio',
+      tagline: 'Photography Pricing Calculator',
+      cta_button_text: 'Book Now',
+      background_color: '#0D0D12',
+      surface_color: '#1A1A24',
+      text_color: '#FFFFFF',
+      primary_action_color: '#FF6B35',
+      secondary_action_color: '#F7C59F',
+      font_family: 'Syne',
+      font_size: 16
+    };
+    
+    // Element SDK initialization
+    window.elementSdk.init({
+      defaultConfig,
+      onConfigChange: async (config) => {
+        // Update business name
+        const businessNameEl = document.getElementById('business-name');
+        if (businessNameEl) {
+          businessNameEl.textContent = config.business_name || defaultConfig.business_name;
+        }
+        
+        // Update tagline
+        const taglineEl = document.getElementById('tagline');
+        if (taglineEl) {
+          taglineEl.textContent = config.tagline || defaultConfig.tagline;
+        }
+        
+        // Update CTA button text
+        const ctaBtn = document.getElementById('cta-button');
+        if (ctaBtn) {
+          const btnText = config.cta_button_text || defaultConfig.cta_button_text;
+          ctaBtn.innerHTML = `<span>${btnText}</span><i data-lucide="arrow-right" class="w-5 h-5"></i>`;
+          lucide.createIcons();
+        }
+        
+        // Apply colors
+        const bgColor = config.background_color || defaultConfig.background_color;
+        const surfaceColor = config.surface_color || defaultConfig.surface_color;
+        const textColor = config.text_color || defaultConfig.text_color;
+        const primaryColor = config.primary_action_color || defaultConfig.primary_action_color;
+        const secondaryColor = config.secondary_action_color || defaultConfig.secondary_action_color;
+        
+        document.body.style.backgroundColor = bgColor;
+        
+        // Update surface colors
+        document.querySelectorAll('.glass').forEach(el => {
+          el.style.backgroundColor = surfaceColor + 'B3';
+          el.style.borderColor = primaryColor + '1A';
+        });
+        
+        document.querySelectorAll('.range-slider').forEach(el => {
+          el.style.setProperty('--thumb-color', primaryColor);
+        });
+        
+        // Update text color
+        document.querySelectorAll('h3').forEach(el => {
+          el.style.color = textColor;
+        });
+        
+        // Update primary action elements
+        document.querySelectorAll('[class*="bg-[#FF6B35]"]').forEach(el => {
+          if (el.classList.contains('bg-[#FF6B35]/20')) {
+            el.style.backgroundColor = primaryColor + '33';
+          }
+        });
+        
+        // Apply font
+        const fontFamily = config.font_family || defaultConfig.font_family;
+        const fontSize = config.font_size || defaultConfig.font_size;
+        document.documentElement.style.fontFamily = `${fontFamily}, sans-serif`;
+        document.documentElement.style.fontSize = `${fontSize}px`;
+      },
+      mapToCapabilities: (config) => ({
+        recolorables: [
+          {
+            get: () => config.background_color || defaultConfig.background_color,
+            set: (value) => { config.background_color = value; window.elementSdk.setConfig({ background_color: value }); }
+          },
+          {
+            get: () => config.surface_color || defaultConfig.surface_color,
+            set: (value) => { config.surface_color = value; window.elementSdk.setConfig({ surface_color: value }); }
+          },
+          {
+            get: () => config.text_color || defaultConfig.text_color,
+            set: (value) => { config.text_color = value; window.elementSdk.setConfig({ text_color: value }); }
+          },
+          {
+            get: () => config.primary_action_color || defaultConfig.primary_action_color,
+            set: (value) => { config.primary_action_color = value; window.elementSdk.setConfig({ primary_action_color: value }); }
+          },
+          {
+            get: () => config.secondary_action_color || defaultConfig.secondary_action_color,
+            set: (value) => { config.secondary_action_color = value; window.elementSdk.setConfig({ secondary_action_color: value }); }
+          }
+        ],
+        borderables: [],
+        fontEditable: {
+          get: () => config.font_family || defaultConfig.font_family,
+          set: (value) => { config.font_family = value; window.elementSdk.setConfig({ font_family: value }); }
+        },
+        fontSizeable: {
+          get: () => config.font_size || defaultConfig.font_size,
+          set: (value) => { config.font_size = value; window.elementSdk.setConfig({ font_size: value }); }
+        }
+      }),
+      mapToEditPanelValues: (config) => new Map([
+        ['business_name', config.business_name || defaultConfig.business_name],
+        ['tagline', config.tagline || defaultConfig.tagline],
+        ['cta_button_text', config.cta_button_text || defaultConfig.cta_button_text]
+      ])
+    });
+    
+    function updateSliderBackground(slider, min, max, value, color) {
+      const percent = ((value - min) / (max - min)) * 100;
+      slider.style.background = `linear-gradient(to right, ${color} 0%, ${color} ${percent}%, #2A2A36 ${percent}%, #2A2A36 100%)`;
+    }
+    
+    function updateCalculator() {
+      const hoursSlider = document.getElementById('hours-slider');
+      const rateSlider = document.getElementById('rate-slider');
+      
+      hours = parseInt(hoursSlider.value);
+      rate = parseInt(rateSlider.value);
+      
+      document.getElementById('hours-display').textContent = hours;
+      document.getElementById('rate-display').textContent = rate;
+      
+      updateSliderBackground(hoursSlider, 1, 8, hours, '#FF6B35');
+      updateSliderBackground(rateSlider, 150, 250, rate, '#F7C59F');
+      
+      calculateTotal();
+    }
+    
+    function adjustImages(delta) {
+      images = Math.max(0, Math.min(100, images + delta));
+      document.getElementById('images-display').textContent = images;
+      calculateTotal();
+    }
+    
+    function selectAlbum(type, price) {
+      selectedAlbum = type;
+      albumPrice = price;
+      
+      // Reset all
+      ['none', 'standard', 'premium'].forEach(t => {
+        const btn = document.getElementById(`album-${t}`);
+        const check = document.getElementById(`check-${t}`);
+        btn.classList.remove('checked');
+        btn.style.borderColor = '#2A2A36';
+        check.style.backgroundColor = 'transparent';
+        check.parentElement.style.borderColor = 'rgba(247, 197, 159, 0.3)';
+      });
+      
+      // Set selected
+      const selectedBtn = document.getElementById(`album-${type}`);
+      const selectedCheck = document.getElementById(`check-${type}`);
+      selectedBtn.classList.add('checked');
+      selectedBtn.style.borderColor = '#FF6B35';
+      selectedCheck.style.backgroundColor = '#FF6B35';
+      selectedCheck.parentElement.style.borderColor = '#FF6B35';
+      
+      calculateTotal();
+    }
+    
+    function calculateTotal() {
+      const sessionCost = hours * rate;
+      const editingCost = images * 50;
+      const total = sessionCost + editingCost + albumPrice;
+      
+      document.getElementById('total-display').textContent = `$${total.toLocaleString()}`;
+      document.getElementById('breakdown-session').textContent = `$${sessionCost.toLocaleString()}`;
+      document.getElementById('breakdown-editing').textContent = `$${editingCost.toLocaleString()}`;
+      document.getElementById('breakdown-album').textContent = `$${albumPrice.toLocaleString()}`;
+    }
+    
+    // Initialize
+    document.addEventListener('DOMContentLoaded', () => {
+      lucide.createIcons();
+      updateCalculator();
+      selectAlbum('none', 0);
+    });
+    
+    // Navigation functions
+    function goToCheckout() {
+      // Update summary values
+      document.getElementById('summary-hours').textContent = hours;
+      document.getElementById('summary-rate').textContent = rate;
+      document.getElementById('summary-images').textContent = images;
+      
+      const sessionCost = hours * rate;
+      const editingCost = images * 50;
+      const total = sessionCost + editingCost + albumPrice;
+      
+      document.getElementById('summary-session').textContent = `$${sessionCost.toLocaleString()}`;
+      document.getElementById('summary-editing').textContent = `$${editingCost.toLocaleString()}`;
+      document.getElementById('summary-album').textContent = `$${albumPrice.toLocaleString()}`;
+      document.getElementById('summary-total').textContent = `$${total.toLocaleString()}`;
+      
+      // Show checkout, hide calculator
+      document.getElementById('calculator-view').classList.add('hidden');
+      document.getElementById('checkout-view').classList.remove('hidden');
+      document.getElementById('success-message').classList.add('hidden');
+      
+      // Reset form
+      document.getElementById('checkout-form').reset();
+      document.getElementById('terms').checked = false;
+      
+      // Scroll to top
+      window.scrollTo(0, 0);
+      lucide.createIcons();
+    }
+    
+    function goBackToCalculator() {
+      document.getElementById('calculator-view').classList.remove('hidden');
+      document.getElementById('checkout-view').classList.add('hidden');
+      document.getElementById('success-message').classList.add('hidden');
+      window.scrollTo(0, 0);
+      lucide.createIcons();
+    }
+    
+    function submitBooking(event) {
+      event.preventDefault();
+      
+      // Get form data
+      const formData = {
+        name: document.getElementById('customer-name').value,
+        email: document.getElementById('customer-email').value,
+        phone: document.getElementById('customer-phone').value,
+        date: document.getElementById('event-date').value,
+        notes: document.getElementById('special-notes').value,
+        sessionHours: hours,
+        sessionRate: rate,
+        editedImages: images,
+        albumType: selectedAlbum,
+        total: hours * rate + images * 50 + albumPrice
+      };
+      
+      // Log booking (in a real app, this would be sent to a server)
+      console.log('Booking submitted:', formData);
+      
+      // Show success message
+      document.getElementById('checkout-view').classList.add('hidden');
+      document.getElementById('success-message').classList.remove('hidden');
+      window.scrollTo(0, 0);
+      lucide.createIcons();
+    }
+  </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9d82bd2383f9c08b',t:'MTc3MjgxNDU2Mi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
